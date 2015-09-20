@@ -1,0 +1,104 @@
+---
+title: "Peer assessment 1 submission - Reproducible Research"
+output: html_document
+---
+
+
+##Loading and preprocessing the data
+
+First of all, we need to start with the data tune-up.  This is the code for it: 
+
+*Code:*
+
+```{r, echo=TRUE}
+rawData <- read.csv("activity.csv")
+
+complCas <- complete.cases(rawData)
+
+procData <- rawData[complCas, ]
+```
+
+
+##What is mean total number of steps taken per day?
+
+As per requested, the mean and median of the total number of steps taken per day are 10766.1 and 10765, respectively. 
+
+
+*Code:*
+
+```{r, echo=TRUE}
+uniqueCasesDate <- unique(procData$date)
+
+dailySteps <- c()
+
+meanDailySteps <- c()
+
+for (i in 1:length(uniqueCasesDate)){
+  
+  dailySteps[i] <- sum(procData[which(procData$date == uniqueCasesDate[i]),"steps"])
+  meanDailySteps[i] <- sum(procData[which(procData$date == uniqueCasesDate[i]),"steps"])/length(procData[which(procData$date == uniqueCasesDate[i]),"steps"])
+}
+
+complData <- data.frame(uniqueCasesDate, meanDailySteps)
+
+
+
+meanSteps <- sum(dailySteps)/length(dailySteps)
+medianSteps <- median(dailySteps)
+
+print(paste("- The mean of the daily steps is ", meanSteps, sep = ""))
+print("")
+print(paste("- The median of the daily steps is ", medianSteps, sep = ""))
+
+```
+
+
+Here is the histogram for the total number of steps taken each day: 
+
+```{r, echo=FALSE}
+hist(dailySteps)
+```
+
+##What is the average daily activity pattern?
+
+The interval with the most average steps is 835. 
+
+
+
+
+
+
+*Code:*
+
+```{r, echo=TRUE}
+
+uniqueCasesInter <- unique(procData$interval)
+
+interSteps <- c()
+
+for (i in 1:length(uniqueCasesInter)){
+  
+  interSteps[i] <- mean(procData[which(procData$interval == uniqueCasesInter[i]),"steps"])#/length(procData[which(procData$interval == uniqueCasesInter[i]),"steps"])
+}
+
+
+
+
+maxInterval <- uniqueCasesInter[which.max(interSteps)]
+
+print(paste("- The interval with the most average steps is ", maxInterval, sep = ""))
+
+
+
+```
+
+
+This is the times series plot for the average number of steps taken, averaged across all days Vs. 5-minute interval:
+
+```{r, echo=FALSE}
+plot(uniqueCasesInter, interSteps, type = "l")
+```
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
