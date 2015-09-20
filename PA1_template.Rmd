@@ -53,6 +53,8 @@ print(paste("- The median of the daily steps is ", medianSteps, sep = ""))
 ```
 
 
+
+
 Here is the histogram for the total number of steps taken each day: 
 
 ```{r, echo=FALSE}
@@ -101,4 +103,75 @@ plot(uniqueCasesInter, interSteps, type = "l")
 
 
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+##Imputing missing values
+
+The number of rows with NA's is 2304. The strategy for filling NA's is using the average of the corresponding 5-minute interval's average of steps, where possible (and, where not possible, assigning the previously assigned 5-minute interval's average of steps). This is the code for the new dataset and everything requested for this part:
+
+*Code:*
+
+
+```{r, echo=TRUE}
+
+
+
+nComplCas <- sum(!complCas)
+
+print(paste("- The number of rows with NA's is ", nComplCas, sep = ""))
+
+
+corrRawData <- c()
+
+lastAvg <- 0
+
+for (i in 1:dim(rawData)[1]){
+  
+  if (!complCas[i]) {
+    
+    if(length(interSteps[rawData[i, "interval"]]) !=0){
+      
+      corrRawData[i] <- interSteps[rawData[i, "interval"]]
+      
+      lastAvg <- corrRawData[i]
+      
+    }else{
+      
+      corrRawData[i] <-  lastAvg
+    }
+    
+  } else {
+    
+    corrRawData[i] <- rawData[i, "steps"]
+  }
+  
+  
+  
+}
+
+noNAdata <- data.frame(corrRawData, rawData$date, rawData$interval)
+names(noNAdata) <- c("steps", "date", "interval")
+
+dailySteps2 <- c()
+meanDailySteps2 <- c()
+
+for (i in 1:length(uniqueCasesDate)){
+  
+  dailySteps2[i] <- sum(noNAdata[which(noNAdata$date == uniqueCasesDate[i]),"steps"])
+  meanDailySteps2[i] <- sum(noNAdata[which(noNAdata$date == uniqueCasesDate[i]),"steps"])/length(procData[which(procData$date == uniqueCasesDate[i]),"steps"])
+}
+
+
+```
+
+Here is the plot for this part:
+
+
+
+```{r, echo=FALSE}
+hist(dailySteps2)
+```
+
+
+The values of the new data set do not differ significantly from the original dataset, as it can be seen in the aforementioned histogram.
+
+
+
